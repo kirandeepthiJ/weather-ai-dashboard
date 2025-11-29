@@ -1,0 +1,23 @@
+# Node / React
+node_modules/
+weather-ui/node_modules/
+
+# Python
+venv/
+cloudrun_api/venv/
+_pycache_/
+*.pyc
+
+# ENV files
+.env
+.env.local
+weather-ui/.env
+weather-ui/.env.local
+
+# Terraform
+infra/terraform/.terraform/
+infra/terraform/terraform.tfstate*
+.tfstate
+
+# System files
+.DS_Store
