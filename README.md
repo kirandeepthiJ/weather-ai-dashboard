@@ -80,6 +80,7 @@ weather-ui/
 
 .gitignore
 README.md                 # This file
+```
 3. Prerequisites
 
 Google Cloud project (e.g., weather-ai-dashboard)
