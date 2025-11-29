@@ -81,7 +81,7 @@ weather-ui/
 .gitignore
 README.md                 # This file
 ```
-3. Prerequisites
+## 3. Prerequisites
 
 Google Cloud project (e.g., weather-ai-dashboard)
 
@@ -92,10 +92,12 @@ Terraform installed
 Docker installed
 
 Node.js + npm (if you want to run the UI locally)
-4. Infrastructure Deployment (Terraform)
+
+---
+## 4. Infrastructure Deployment (Terraform)
 
 All commands below are run from the repo root unless otherwise specified.
-4.1 Set up Terraform variables
+### 4.1 Set up Terraform variables
 cd infra/terraform
 cp terraform.tfvars.example terraform.tfvars
 Edit terraform.tfvars and fill in:
@@ -107,20 +109,20 @@ gke_cluster_name = "weather-gke-cluster"
 cloud_run_image  = "us-central1-docker.pkg.dev/weather-ai-dashboard/weather-repo/weather-api:vX"
 ui_image         = "us-central1-docker.pkg.dev/weather-ai-dashboard/weather-repo/weather-ui:vY"
 Note: cloud_run_image and ui_image refer to Docker images you’ll build & push in the next step.
-4.2 Build & push backend (Cloud Run) image
+### 4.2 Build & push backend (Cloud Run) image
 cd cloudrun_api
 
-# Build image
+### Build image
 docker build -t us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-api:v1 .
 
-# Push to Artifact Registry
+### Push to Artifact Registry
 docker push us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-api:v1
 Update cloud_run_image in terraform.tfvars to this exact tag.
-4.3 Build & push UI (GKE) image
+### 4.3 Build & push UI (GKE) image
 cd weather-ui
 
 npm install
-# (optional) npm run build
+### (optional) npm run build
 
 docker build -t us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-ui:v1 .
 
@@ -128,7 +130,7 @@ docker push us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-ui:v1
 
 Update ui_image in terraform.tfvars if you are referencing it from Terraform, or ensure k8s/deployment.yaml uses this image.
 
-4.4 Run Terraform
+### 4.4 Run Terraform
 cd infra/terraform
 
 terraform init
@@ -146,7 +148,9 @@ Cloud Run service weather-api
 Cloud Scheduler job calling /ingest
 
 GKE cluster + node pool
-5. Deploy the React UI to GKE
+
+---
+## 5. Deploy the React UI to GKE
 
 After Terraform finishes, configure kubectl:
 gcloud container clusters get-credentials <gke_cluster_name> --zone <zone> --project <project_id>
@@ -159,7 +163,9 @@ kubectl apply -f service.yaml
 Get the external IP:
 kubectl get service weather-ui-service
 Open the IP in the browser – you should see Weather AI Dashboard.
-6. Running Ingestion & Viewing Data
+
+---
+## 6. Running Ingestion & Viewing Data
 
 Manually trigger ingestion once (for testing):
 curl "https://<cloud-run-url>/ingest"
@@ -172,23 +178,25 @@ The UI calls:
 GET /weather/all to list all cities
 
 GET /weather/<city> to fetch a single city
-7. API Documentation
+
+---
+## 7. API Documentation
 
 Base URL:
 https://<cloud-run-host>
-7.1 GET /
+### 7.1 GET /
 
 Description: Health message
 
 Response:
 { "message": "Weather API running" }
-7.2 GET /healthz
+### 7.2 GET /healthz
 
 Description: Health check endpoint
 
 Response:
 { "status": "ok" }
-7.3 GET /ingest
+### 7.3 GET /ingest
 
 Description:
 Fetches weather for 5 cities, calls Vertex AI to generate summary and mood, and writes one JSON file per city in GCS.
@@ -201,7 +209,7 @@ Response (example):
   "Tokyo": "✔ Stored",
   "Sydney": "✔ Stored"
 }
-7.4 GET /weather/all
+### 7.4 GET /weather/all
 
 Description: Returns all cities currently stored in the bucket.
 
@@ -216,7 +224,7 @@ Sample response:
   },
   ...
 ]
-7.5 GET /weather/<city>
+### 7.5 GET /weather/<city>
 
 Description: Returns a single city record by name.
 
@@ -230,7 +238,10 @@ Response:
   "mood": "Chilly",
   "summary": "The weather in London is cool and breezy."
 }
-8. Local Development
+
+---
+
+## 8. Local Development
 Backend (Cloud Run API) locally
 cd cloudrun_api
 pip install -r requirements.txt
@@ -244,7 +255,9 @@ npm install
 npm start
 Set REACT_APP_API_URL in .env to point to your local or Cloud Run backend.
 
-9. Logging
+---
+
+## 9. Logging
 
 Application outputs JSON logs:
 {"service":"weather-api","severity":"INFO","message":"Stored London"}
@@ -253,7 +266,8 @@ Logs appear in:
 
 GCP Console → Cloud Logging → Logs Explorer
 
-10. Security & IAM
+---
+## 10. Security & IAM
 
 - Separate service accounts per workload
 - Least privilege IAM roles
@@ -262,30 +276,24 @@ GCP Console → Cloud Logging → Logs Explorer
 - Secret values passed using:
   - Environment variables
   - Kubernetes Secrets
-
- 11. Cost Optimization
+---
+ ## 11. Cost Optimization
 
 - Autoscaling for Cloud Run
 - Autoscaling node pool for GKE
 - GCS lifecycle rules
 - Minimal Docker image sizes
 - Artifact Registry for image storage
+---
 
- 12. CI/CD (Future Scope)
-
-CI/CD is not implemented yet.
-
-Planned:
-- GitHub Actions / Cloud Build
-- Automatic Docker builds
-- Auto deployment on commits
- 13. Demo Steps
+ ## 12. Demo Steps
 
 1. Call `/ingest`
 2. Check Cloud Storage bucket
 3. Open UI
 4. Click city → see AI output
-14. Author
+---
+## 13. Author
 
 Kiran Deepthi  
 B.Tech CSE | Cloud & AI Enthusiast
