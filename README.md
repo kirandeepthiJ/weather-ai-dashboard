@@ -1,82 +1,178 @@
 # Serverless Weather AI Microservice on GCP
 
-This project implements an end-to-end *serverless, event-driven microservice* on Google Cloud Platform that:
+## Overview
+This project implements an end-to-end serverless, event-driven microservice on Google Cloud Platform (GCP).
 
-- Periodically ingests live *weather data* for 5 cities
-- Stores it in *Google Cloud Storage*
-- Uses *Vertex AI Gemini 2.0 Flash* to generate:
-  - a short *summary* of the weather
-  - a *mood tag* (e.g., Calm, Chilly, Pleasant)
-- Exposes a simple *REST API* via Cloud Run
-- Visualizes the data in a *React UI* deployed on *GKE*
+Features:
+- Periodically ingests live weather data for 5 cities
+- Stores structured data in Google Cloud Storage
+- Uses Google Vertex AI (Gemini 2.0 Flash) to generate:
+  - Weather summary
+  - Mood label (Calm, Chilly, Pleasant, etc.)
+- Exposes REST APIs using Cloud Run
+- Displays data using a React UI deployed on GKE
 
----
 
-## 1. Architecture Overview
+## Architecture Flow
 
-*Data flow:*
+Cloud Scheduler  
+→ Cloud Run (/ingest)  
+→ Open-Meteo API  
+→ Vertex AI (Gemini)  
+→ Google Cloud Storage  
+→ React UI on GKE  
 
-1. *Cloud Scheduler* calls the /ingest endpoint on a *Cloud Run* service (weather-api) every N minutes.
-2. Cloud Run:
-   - Calls *Open-Meteo* APIs to fetch current weather for 5 cities.
-   - Calls *Vertex AI (Gemini 2.0 Flash)* to derive:
-     - summary (natural language)
-     - mood (short label)
-   - Stores the final JSON (raw + AI fields) into *GCS bucket* weather-data-<something>.
-3. The *React UI* (Weather AI Dashboard) running on *GKE*:
-   - Calls the Cloud Run API
-   - Renders a table of all cities
-   - Shows mood as colored tags and summary as text
-   - Allows clicking a city to view full JSON details.
+React UI:
+- Fetches data from Cloud Run
+- Displays table view
+- Shows mood tags
+- Allows viewing raw JSON per city
 
-*Tech stack:*
+Technologies:
+Backend: Python, Flask, Cloud Run, Vertex AI, Cloud Storage, Cloud Scheduler  
+Frontend: React, Axios, CSS  
+Infrastructure: Terraform, Artifact Registry, GKE  
+Logging: Cloud Logging  
 
-- Backend: Python, Flask, Cloud Run, Vertex AI, Cloud Storage, Cloud Scheduler  
-- Frontend: React, Axios, CSS, GKE (Deployment + Service)  
-- IaC: Terraform (Cloud Run, GKE, Scheduler, Storage, Artifact Registry, IAM)  
-- Logging: JSON logs to *Cloud Logging*
 
----
+## Repository Structure
 
-## 2. Repository Layout
+cloudrun_api  
+- Dockerfile  
+- main.py  
+- requirements.txt  
 
-```text
-cloudrun_api/
-  Dockerfile              # Backend container image
-  main.py                 # Flask API + Vertex AI + ingestion logic
-  requirements.txt        # Python dependencies
+infra  
+- lifecycle.json  
+- terraform  
+  - provider.tf  
+  - cloudrun.tf  
+  - scheduler.tf  
+  - gke.tf  
+  - storage.tf  
+  - service_accounts.tf  
+  - artifact_registry.tf  
+  - variables.tf  
+  - terraform.tfvars.example  
 
-infra/
-  lifecycle.json          # Example GCS lifecycle rule (delete old objects)
-  terraform/
-    .terraform.lock.hcl   # Provider lock file
-    artifact_registry.tf  # Artifact Registry repo for Docker images
-    cloudrun.tf           # Cloud Run service + IAM
-    gke.tf                # GKE cluster + node pool
-    provider.tf           # Terraform provider configuration
-    scheduler.tf          # Cloud Scheduler job
-    service_accounts.tf   # IAM service accounts and roles
-    storage.tf            # GCS bucket for weather JSON files
-    variables.tf          # Input variable definitions
-    terraform.tfvars.example  # Example values for variables
+weather-ui  
+- Dockerfile  
+- .env.example  
+- k8s  
+  - deployment.yaml  
+  - service.yaml  
+- src  
+- public  
+- package.json  
 
-weather-ui/
-  k8s/
-    deployment.yaml       # GKE Deployment for React UI
-    service.yaml          # LoadBalancer Service for UI
-  public/
-    index.html
-  src/
-    App.js                # Top-level React component
-    api.js                # Axios calls to Cloud Run API
-    index.js              # React entry point
-    index.css             # Styling
-    components/
-      WeatherTable.js     # Main table with mood badges
-      CityDetail.js       # Modal with full JSON
-  Dockerfile              # UI Docker image
-  .dockerignore
-  .env.example            # Sample env file for REACT_APP_API_URL
 
-.gitignore
-README.md                 # This file
+## Deployment Instructions
+
+### Step 1: Terraform Setup
+Go to:
+infra/terraform
+
+Create:
+terraform.tfvars
+
+Example:
+project_id = "your-project-id"
+region = "us-central1"
+zone = "us-central1-a"
+bucket_name = "weather-data-yourname"
+cloud_run_image = "image-path"
+ui_image = "image-path"
+gke_cluster_name = "weather-cluster"
+
+Run:
+terraform init  
+terraform apply  
+
+
+### Step 2: Backend Deployment (Cloud Run)
+
+Build image:
+docker build -t IMAGE .
+
+Push:
+docker push IMAGE
+
+
+### Step 3: UI Deployment (GKE)
+
+Build & push:
+docker build -t UI_IMAGE .
+docker push UI_IMAGE
+
+Get cluster credentials:
+gcloud container clusters get-credentials CLUSTER_NAME
+
+Apply manifests:
+kubectl apply -f k8s/deployment.yaml  
+kubectl apply -f k8s/service.yaml  
+
+Open LoadBalancer IP.
+
+
+## API Documentation
+
+Base URL:
+Cloud Run service URL
+
+Endpoints:
+
+GET /  
+Health check
+
+GET /ingest  
+Fetches weather + AI processing
+
+GET /weather/all  
+Returns all cities
+
+GET /weather/{city}  
+Returns one city data
+
+
+## Logging
+
+Logs are emitted in JSON format.
+View logs in:
+Google Cloud Console → Logs Explorer
+
+
+## Security
+
+- Least privilege service accounts
+- Secrets removed from repository
+- terraform.tfvars ignored
+- .env files ignored
+- IAM roles scoped properly
+
+
+## Cost Optimization
+
+- Autoscaling
+- Lifecycle rules on storage
+- Lightweight compute
+- Artifact Registry used for images
+
+
+## CI/CD
+
+CI/CD is not implemented yet.
+It is planned using GitHub Actions or Cloud Build.
+
+
+## Demo
+
+1. Trigger /ingest
+2. View Cloud Storage bucket
+3. Open UI dashboard
+4. Click a city to inspect full JSON
+
+
+## Author
+
+Kiran Deepthi  
+B.Tech CSE | Cloud & AI Engineering
