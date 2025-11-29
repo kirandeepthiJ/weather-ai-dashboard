@@ -1,41 +1,62 @@
 # Serverless Weather AI Microservice on GCP
 
-## Overview
-This project implements an end-to-end serverless, event-driven microservice on Google Cloud Platform (GCP).
+This project implements an end-to-end **serverless, event-driven microservice** on Google Cloud Platform that:
 
-Features:
-- Periodically ingests live weather data for 5 cities
-- Stores structured data in Google Cloud Storage
-- Uses Google Vertex AI (Gemini 2.0 Flash) to generate:
-  - Weather summary
-  - Mood label (Calm, Chilly, Pleasant, etc.)
-- Exposes REST APIs using Cloud Run
-- Displays data using a React UI deployed on GKE
+- Periodically ingests live **weather data** for 5 cities
+- Stores it in **Google Cloud Storage**
+- Uses **Vertex AI Gemini 2.0 Flash** to generate:
+  - a short **summary** of the weather
+  - a **mood tag** (e.g., Calm, Chilly, Pleasant)
+- Exposes a simple **REST API** via Cloud Run
+- Visualizes the data in a **React UI** deployed on **GKE**
 
+---
 
-## Architecture Flow
+## 1. Architecture Overview
 
-Cloud Scheduler  
-→ Cloud Run (/ingest)  
-→ Open-Meteo API  
-→ Vertex AI (Gemini)  
-→ Google Cloud Storage  
-→ React UI on GKE  
+### Data flow
 
-React UI:
-- Fetches data from Cloud Run
-- Displays table view
-- Shows mood tags
-- Allows viewing raw JSON per city
+1. **Cloud Scheduler** calls the `/ingest` endpoint on the **Cloud Run** service (`weather-api`) every N minutes.
+2. Cloud Run:
+   - Calls **Open-Meteo API** to get weather data.
+   - Calls **Vertex AI (Gemini 2.0 Flash)** to generate:
+     - weather summary
+     - mood classification
+   - Stores enriched results in **Google Cloud Storage (GCS)**.
+3. The **React UI on GKE**:
+   - Calls Cloud Run APIs
+   - Displays weather in a table
+   - Shows mood as colored tags
+   - Lets user click a city to view full JSON data.
 
-Technologies:
-Backend: Python, Flask, Cloud Run, Vertex AI, Cloud Storage, Cloud Scheduler  
-Frontend: React, Axios, CSS  
-Infrastructure: Terraform, Artifact Registry, GKE  
-Logging: Cloud Logging  
+---
 
+### Technology Stack
 
-## Repository Structure
+Backend:
+- Python, Flask
+- Cloud Run
+- Vertex AI (Gemini)
+- Google Cloud Storage
+- Cloud Scheduler
+
+Frontend:
+- React
+- Axios
+- CSS
+- Kubernetes (GKE)
+
+Infrastructure:
+- Terraform (IaC)
+- Artifact Registry
+- IAM & Service Accounts
+
+Logging:
+- Structured JSON logs to Cloud Logging
+
+---
+
+## 2. Repository Layout
 
 cloudrun_api  
 - Dockerfile  
@@ -58,121 +79,42 @@ infra
 weather-ui  
 - Dockerfile  
 - .env.example  
+- .dockerignore  
 - k8s  
   - deployment.yaml  
   - service.yaml  
 - src  
+  - App.js  
+  - api.js  
+  - index.js  
+  - index.css  
+  - components  
+    - WeatherTable.js  
+    - CityDetail.js  
 - public  
 - package.json  
 
+.gitignore  
+README.md  
 
-## Deployment Instructions
+---
 
-### Step 1: Terraform Setup
+## 3. Deployment Instructions
+
+### Prerequisites
+
+Install:
+- Terraform
+- Docker
+- Node.js
+- gcloud CLI (authenticated)
+
+---
+
+### Step 1: Configure Terraform
+
 Go to:
 infra/terraform
 
-Create:
-terraform.tfvars
+Create actual variables file:
 
-Example:
-project_id = "your-project-id"
-region = "us-central1"
-zone = "us-central1-a"
-bucket_name = "weather-data-yourname"
-cloud_run_image = "image-path"
-ui_image = "image-path"
-gke_cluster_name = "weather-cluster"
-
-Run:
-terraform init  
-terraform apply  
-
-
-### Step 2: Backend Deployment (Cloud Run)
-
-Build image:
-docker build -t IMAGE .
-
-Push:
-docker push IMAGE
-
-
-### Step 3: UI Deployment (GKE)
-
-Build & push:
-docker build -t UI_IMAGE .
-docker push UI_IMAGE
-
-Get cluster credentials:
-gcloud container clusters get-credentials CLUSTER_NAME
-
-Apply manifests:
-kubectl apply -f k8s/deployment.yaml  
-kubectl apply -f k8s/service.yaml  
-
-Open LoadBalancer IP.
-
-
-## API Documentation
-
-Base URL:
-Cloud Run service URL
-
-Endpoints:
-
-GET /  
-Health check
-
-GET /ingest  
-Fetches weather + AI processing
-
-GET /weather/all  
-Returns all cities
-
-GET /weather/{city}  
-Returns one city data
-
-
-## Logging
-
-Logs are emitted in JSON format.
-View logs in:
-Google Cloud Console → Logs Explorer
-
-
-## Security
-
-- Least privilege service accounts
-- Secrets removed from repository
-- terraform.tfvars ignored
-- .env files ignored
-- IAM roles scoped properly
-
-
-## Cost Optimization
-
-- Autoscaling
-- Lifecycle rules on storage
-- Lightweight compute
-- Artifact Registry used for images
-
-
-## CI/CD
-
-CI/CD is not implemented yet.
-It is planned using GitHub Actions or Cloud Build.
-
-
-## Demo
-
-1. Trigger /ingest
-2. View Cloud Storage bucket
-3. Open UI dashboard
-4. Click a city to inspect full JSON
-
-
-## Author
-
-Kiran Deepthi  
-B.Tech CSE | Cloud & AI Engineering
