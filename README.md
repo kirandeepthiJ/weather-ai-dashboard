@@ -83,15 +83,15 @@ README.md                 # This file
 ```
 ## 3. Prerequisites
 
-Google Cloud project (e.g., weather-ai-dashboard)
+- Google Cloud project (e.g., weather-ai-dashboard)
 
-gcloud CLI installed and authenticated
+- gcloud CLI installed and authenticated
 
-Terraform installed
+- Terraform installed
 
- Docker installed
+- Docker installed
 
- Node.js + npm (if you want to run the UI locally)
+- Node.js + npm (if you want to run the UI locally)
 
 ---
 ## 4. Infrastructure Deployment (Terraform)
