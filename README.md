@@ -185,8 +185,8 @@ Open the IP in the browser – you should see `Weather AI Dashboard.`
 2. Scheduler will then call this endpoint automatically based on its cron schedule.
    
 3. The UI calls:
-   -`GET /weather/all` to list all cities
-   -`GET /weather/<city>` to fetch a single city
+     -`GET /weather/all` to list all cities
+     -`GET /weather/<city>` to fetch a single city
 
 ---
 ## 7. API Documentation
