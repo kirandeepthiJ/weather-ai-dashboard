@@ -84,13 +84,9 @@ README.md                 # This file
 ## 3. Prerequisites
 
 - Google Cloud project (e.g., weather-ai-dashboard)
-
 - gcloud CLI installed and authenticated
-
 - Terraform installed
-
 - Docker installed
-
 - Node.js + npm (if you want to run the UI locally)
 
 ---
@@ -98,8 +94,10 @@ README.md                 # This file
 
 All commands below are run from the repo root unless otherwise specified.
 ### 4.1 Set up Terraform variables
+```text
 cd infra/terraform
 cp terraform.tfvars.example terraform.tfvars
+
 Edit terraform.tfvars and fill in:
 project_id   = "weather-ai-dashboard"   # your GCP project id
 region       = "us-central1"
