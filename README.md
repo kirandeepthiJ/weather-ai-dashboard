@@ -97,8 +97,10 @@ All commands below are run from the repo root unless otherwise specified.
 ```text
 cd infra/terraform
 cp terraform.tfvars.example terraform.tfvars
-
+```
 Edit terraform.tfvars and fill in:
+```markdown
+```hcl
 project_id   = "weather-ai-dashboard"   # your GCP project id
 region       = "us-central1"
 zone         = "us-central1-a"
