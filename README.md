@@ -185,8 +185,8 @@ Open the IP in the browser – you should see `Weather AI Dashboard.`
 2. Scheduler will then call this endpoint automatically based on its cron schedule.
    
 3. The UI calls:
-     - GET /weather/all to list all cities
-     - GET /weather/<city> to fetch a single city
+   -`GET /weather/all` to list all cities
+   -`GET /weather/<city>` to fetch a single city
 
 ---
 ## 7. API Documentation
@@ -195,21 +195,21 @@ Base URL:
 ```text
 https://<cloud-run-host>
 ```
-#### 7.1 GET /
+#### 7.1 `GET /`
 
 - **Description:** Health message
 - **Response:**
  ```text
 { "message": "Weather API running" }
 ```
-#### 7.2 GET /healthz
+#### 7.2 `GET /healthz`
 
 - **Description:** Health check endpoint
 - **Response:**
 ```text
 { "status": "ok" }
 ```
-#### 7.3 GET /ingest
+#### 7.3 `GET /ingest`
 
 - **Description:**
     Fetches weather for 5 cities, calls Vertex AI to generate summary and mood, and writes one JSON file per city in GCS.
@@ -223,7 +223,7 @@ https://<cloud-run-host>
   "Sydney": "✔ Stored"
 }
 ```
-#### 7.4 GET /weather/all
+#### 7.4 `GET /weather/all`
 
 - **Description:** Returns all cities currently stored in the bucket.
 - **Sample response:**
@@ -239,7 +239,7 @@ https://<cloud-run-host>
   ...
 ]
 ```
-#### 7.5 GET /weather/<city>
+#### 7.5 `GET /weather/<city>`
 
 - **Description:** Returns a single city record by name.
 - **Example:**
