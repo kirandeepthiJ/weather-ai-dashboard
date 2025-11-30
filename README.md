@@ -109,6 +109,7 @@ gke_cluster_name = "weather-gke-cluster"
 cloud_run_image  = "us-central1-docker.pkg.dev/weather-ai-dashboard/weather-repo/weather-api:vX"
 ui_image         = "us-central1-docker.pkg.dev/weather-ai-dashboard/weather-repo/weather-ui:vY"
 ```
+```
 Note: cloud_run_image and ui_image refer to Docker images you’ll build & push in the next step.
 ### 4.2 Build & push backend (Cloud Run) image
 cd cloudrun_api
