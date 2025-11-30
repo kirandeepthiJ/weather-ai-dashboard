@@ -95,7 +95,7 @@ README.md                 # This file
 All commands below are run from the repo root unless otherwise specified.
 
 #### 4.1 Set up Terraform variables
-```text
+```bash
 cd infra/terraform
 cp terraform.tfvars.example terraform.tfvars
 ```
@@ -111,7 +111,7 @@ ui_image         = "us-central1-docker.pkg.dev/weather-ai-dashboard/weather-repo
 ```
 Note: `cloud_run_image` and `ui_image` refer to Docker images you’ll build & push in the next step.
 #### 4.2 Build & push backend (Cloud Run) image
-```text
+```bash
 cd cloudrun_api
 
 #Build image
@@ -122,7 +122,7 @@ docker push us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-api:v1
 ```
 Update `cloud_run_image` in `terraform.tfvars` to this exact tag.
 #### 4.3 Build & push UI (GKE) image
-```text
+```bash
 cd weather-ui
 
 npm install
@@ -135,7 +135,7 @@ docker push us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-ui:v1
 Update `ui_image` in `terraform.tfvars` if you are referencing it from Terraform, or ensure `k8s/deployment.yaml` uses this image.
 
 #### 4.4 Run Terraform
-```text
+```bash
 cd infra/terraform
 
 terraform init
@@ -154,21 +154,21 @@ Terraform will create:
 ## 5. Deploy the React UI to GKE
 
 After Terraform finishes, configure kubectl:
-```text
+```bash
 gcloud container clusters get-credentials <gke_cluster_name> --zone <zone> --project <project_id>
 ```
 Check cluster access:
-```text
+```bash
 kubectl get nodes
 ```
 Then deploy the UI:
-```text
+```bash
 cd weather-ui/k8s
 kubectl apply -f deployment.yaml
 kubectl apply -f service.yaml
 ```
 Get the external IP:
-```text
+```bash
 kubectl get service weather-ui-service
 ```
 Open the IP in the browser – you should see `Weather AI Dashboard.`
@@ -177,7 +177,7 @@ Open the IP in the browser – you should see `Weather AI Dashboard.`
 ## 6. Running Ingestion & Viewing Data
 
 1. Manually trigger ingestion once (for testing):
-    ```text
+    ```bash
       curl "https://<cloud-run-url>/ingest"
     ```
     Or click the Cloud Run URL in GCP console and append /ingest.
@@ -192,7 +192,7 @@ Open the IP in the browser – you should see `Weather AI Dashboard.`
 ## 7. API Documentation
 
 Base URL:
-```text
+```bash
 https://<cloud-run-host>
 ```
 #### 7.1 `GET /`
@@ -261,7 +261,7 @@ GET /weather/London
 ## 8. Local Development
 
 **Backend (Cloud Run API) locally**
-```text
+```bash
 cd cloudrun_api
 pip install -r requirements.txt
 export BUCKET_NAME="your-test-bucket"
@@ -271,7 +271,7 @@ python main.py
 Visit `http://localhost:8080/weather/all` (if you have JSON in the bucket).
 
 **UI locally**
-```text
+```bash
 cd weather-ui
 npm install
 npm start
