@@ -83,7 +83,7 @@ README.md                 # This file
 ```
 ## 3. Prerequisites
 
-- Google Cloud project (e.g., weather-ai-dashboard)
+- Google Cloud project (e.g., `weather-ai-dashboard`)
 - gcloud CLI installed and authenticated
 - Terraform installed
 - Docker installed
@@ -93,12 +93,13 @@ README.md                 # This file
 ## 4. Infrastructure Deployment (Terraform)
 
 All commands below are run from the repo root unless otherwise specified.
-### 4.1 Set up Terraform variables
+
+#### 4.1 Set up Terraform variables
 ```text
 cd infra/terraform
 cp terraform.tfvars.example terraform.tfvars
 ```
-Edit terraform.tfvars and fill in:
+Edit `terraform.tfvars` and fill in:
 ```markdown
 project_id   = "weather-ai-dashboard"   # your GCP project id
 region       = "us-central1"
@@ -108,27 +109,32 @@ gke_cluster_name = "weather-gke-cluster"
 cloud_run_image  = "us-central1-docker.pkg.dev/weather-ai-dashboard/weather-repo/weather-api:vX"
 ui_image         = "us-central1-docker.pkg.dev/weather-ai-dashboard/weather-repo/weather-ui:vY"
 ```
-Note: cloud_run_image and ui_image refer to Docker images you’ll build & push in the next step.
-### 4.2 Build & push backend (Cloud Run) image
+Note: `cloud_run_image` and `ui_image` refer to Docker images you’ll build & push in the next step.
+#### 4.2 Build & push backend (Cloud Run) image
 ```text
 cd cloudrun_api
+
 #Build image
 docker build -t us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-api:v1 .
+
 #Push to Artifact Registry
 docker push us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-api:v1
 ```
-Update cloud_run_image in terraform.tfvars to this exact tag.
+Update `cloud_run_image` in `terraform.tfvars` to this exact tag.
 ### 4.3 Build & push UI (GKE) image
 ```text
 cd weather-ui
+
 npm install
 #(optional) npm run build
+
 docker build -t us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-ui:v1 .
+
 docker push us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-ui:v1
 ```
-Update ui_image in terraform.tfvars if you are referencing it from Terraform, or ensure k8s/deployment.yaml uses this image.
+Update `ui_image` in `terraform.tfvars` if you are referencing it from Terraform, or ensure `k8s/deployment.yaml` uses this image.
 
-### 4.4 Run Terraform
+#### 4.4 Run Terraform
 ```text
 cd infra/terraform
 
@@ -140,8 +146,8 @@ Terraform will create:
 - Artifact Registry repo
 - GCS bucket
 - Service accounts + IAM roles
-- Cloud Run service weather-api
-- Cloud Scheduler job calling /ingest
+- Cloud Run service `weather-api`
+- Cloud Scheduler job calling `/ingest`
 - GKE cluster + node pool
 
 ---
@@ -165,7 +171,7 @@ Get the external IP:
 ```text
 kubectl get service weather-ui-service
 ```
-Open the IP in the browser – you should see Weather AI Dashboard.
+Open the IP in the browser – you should see `Weather AI Dashboard.`
 
 ---
 ## 6. Running Ingestion & Viewing Data
@@ -174,11 +180,13 @@ Open the IP in the browser – you should see Weather AI Dashboard.
 ```text
 curl "https://<cloud-run-url>/ingest"
 ```
-Or click the Cloud Run URL in GCP console and append /ingest.
+   Or click the Cloud Run URL in GCP console and append /ingest.
+
 2. Scheduler will then call this endpoint automatically based on its cron schedule.
+  
 3. The UI calls:
-- GET /weather/all to list all cities
-- GET /weather/<city> to fetch a single city
+     - GET /weather/all to list all cities
+     - GET /weather/<city> to fetch a single city
 
 ---
 ## 7. API Documentation
@@ -187,28 +195,25 @@ Base URL:
 ```text
 https://<cloud-run-host>
 ```
-### 7.1 GET /
+#### 7.1 GET /
 
-- Description: Health message
-
-- Response:
+- **Description:** Health message
+- **Response:**
  ```text
 { "message": "Weather API running" }
 ```
-### 7.2 GET /healthz
+#### 7.2 GET /healthz
 
-- Description: Health check endpoint
-
-- Response:
+- **Description:** Health check endpoint
+- **Response:**
 ```text
 { "status": "ok" }
 ```
-### 7.3 GET /ingest
+#### 7.3 GET /ingest
 
-- Description:
-Fetches weather for 5 cities, calls Vertex AI to generate summary and mood, and writes one JSON file per city in GCS.
-
-- Response (example):
+- **Description:**
+    Fetches weather for 5 cities, calls Vertex AI to generate summary and mood, and writes one JSON file per city in GCS.
+- **Response (example):**
 ```text
 {
   "Hyderabad": "✔ Stored",
@@ -218,11 +223,10 @@ Fetches weather for 5 cities, calls Vertex AI to generate summary and mood, and 
   "Sydney": "✔ Stored"
 }
 ```
-### 7.4 GET /weather/all
+#### 7.4 GET /weather/all
 
-Description: Returns all cities currently stored in the bucket.
-
-Sample response:
+- **Description:** Returns all cities currently stored in the bucket.
+- **Sample response:**
 ```text
 [
   {
@@ -235,15 +239,14 @@ Sample response:
   ...
 ]
 ```
-### 7.5 GET /weather/<city>
+#### 7.5 GET /weather/<city>
 
-- Description: Returns a single city record by name.
-
-- Example:
+- **Description:** Returns a single city record by name.
+- **Example:**
 ```text
 GET /weather/London
 ```
-- Response:
+- **Response:**
 ```text
 {
   "city": "London",
@@ -256,7 +259,8 @@ GET /weather/London
 ---
 
 ## 8. Local Development
-Backend (Cloud Run API) locally
+
+**Backend (Cloud Run API) locally**
 ```text
 cd cloudrun_api
 pip install -r requirements.txt
@@ -264,14 +268,15 @@ export BUCKET_NAME="your-test-bucket"
 export GOOGLE_CLOUD_PROJECT="your-project-id"
 python main.py
 ```
-Visit http://localhost:8080/weather/all (if you have JSON in the bucket).
-UI locally
+Visit `http://localhost:8080/weather/all` (if you have JSON in the bucket).
+
+**UI locally**
 ```text
 cd weather-ui
 npm install
 npm start
 ```
-Set REACT_APP_API_URL in .env to point to your local or Cloud Run backend.
+Set `REACT_APP_API_URL` in `.env` to point to your local or Cloud Run backend.
 
 ---
 
