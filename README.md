@@ -121,7 +121,7 @@ docker build -t us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-api:v
 docker push us-central1-docker.pkg.dev/PROJECT_ID/weather-repo/weather-api:v1
 ```
 Update `cloud_run_image` in `terraform.tfvars` to this exact tag.
-### 4.3 Build & push UI (GKE) image
+#### 4.3 Build & push UI (GKE) image
 ```text
 cd weather-ui
 
@@ -177,13 +177,13 @@ Open the IP in the browser – you should see `Weather AI Dashboard.`
 ## 6. Running Ingestion & Viewing Data
 
 1. Manually trigger ingestion once (for testing):
-```text
-curl "https://<cloud-run-url>/ingest"
-```
-   Or click the Cloud Run URL in GCP console and append /ingest.
-
+    ```text
+      curl "https://<cloud-run-url>/ingest"
+    ```
+    Or click the Cloud Run URL in GCP console and append /ingest.
+   
 2. Scheduler will then call this endpoint automatically based on its cron schedule.
-  
+   
 3. The UI calls:
      - GET /weather/all to list all cities
      - GET /weather/<city> to fetch a single city
